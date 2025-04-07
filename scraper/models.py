@@ -1,31 +1,33 @@
 from django.db import models
 
 class Partido(models.Model):
-    nombre = models.CharField(max_length=200)
-    lista = models.CharField(max_length=50)
+    nombre = models.CharField(max_length=100)
+    siglas = models.CharField(max_length=20)
     logo_url = models.URLField(blank=True, null=True)
+    descripcion = models.TextField(blank=True, null=True)
+    fecha_fundacion = models.DateField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.nombre} - Lista {self.lista}"
+        return self.nombre
 
 class Candidato(models.Model):
-    nombre = models.CharField(max_length=200)
-    cargo = models.CharField(max_length=200)
+    nombre = models.CharField(max_length=100)
+    apellido = models.CharField(max_length=100)
     partido = models.ForeignKey(Partido, on_delete=models.CASCADE, related_name='candidatos')
     foto_url = models.URLField(blank=True, null=True)
     biografia = models.TextField(blank=True, null=True)
-    propuestas = models.TextField(blank=True, null=True)
-    redes_sociales = models.JSONField(default=dict, blank=True, null=True)
+    fecha_nacimiento = models.DateField(blank=True, null=True)
+    cargo_actual = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.nombre} - {self.cargo} ({self.partido.nombre})"
+        return f"{self.nombre} {self.apellido}"
 
-class ResultadoElectoral(models.Model):
+class Resultado(models.Model):
     candidato = models.ForeignKey(Candidato, on_delete=models.CASCADE, related_name='resultados')
-    provincia = models.CharField(max_length=100)
-    votos = models.IntegerField(default=0)
-    porcentaje = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    fecha_actualizacion = models.DateTimeField(auto_now=True)
+    eleccion = models.CharField(max_length=100)
+    fecha = models.DateField()
+    votos = models.IntegerField()
+    porcentaje = models.DecimalField(max_digits=5, decimal_places=2)
 
     def __str__(self):
-        return f"{self.candidato.nombre} - {self.provincia}: {self.porcentaje}%"
+        return f"{self.candidato} - {self.eleccion} ({self.fecha})"

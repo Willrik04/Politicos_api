@@ -4,7 +4,6 @@ from rest_framework.response import Response
 from .models import Candidato, Partido, Resultado
 from .serializers import CandidatoSerializer, PartidoSerializer, ResultadoSerializer
 import os
-import requests
 
 class CandidatoViewSet(viewsets.ModelViewSet):
     queryset = Candidato.objects.all()
@@ -24,28 +23,8 @@ class ChatGPTView(APIView):
             # Obtener la pregunta del usuario
             pregunta = request.data.get('pregunta', '')
 
-            # Configurar la API de OpenAI (o la API que estés usando)
-            api_key = os.environ.get('OPENAI_API_KEY', '')
-
-            # Realizar la consulta a la API
-            headers = {
-                'Authorization': f'Bearer {api_key}',
-                'Content-Type': 'application/json'
-            }
-
-            data = {
-                'model': 'gpt-3.5-turbo',
-                'messages': [
-                    {'role': 'system', 'content': 'Eres un asistente especializado en política ecuatoriana.'},
-                    {'role': 'user', 'content': pregunta}
-                ]
-            }
-
-            response = requests.post('https://api.openai.com/v1/chat/completions', headers=headers, json=data)
-            response_data = response.json()
-
-            # Extraer la respuesta
-            respuesta = response_data['choices'][0]['message']['content']
+            # Simulamos una respuesta para probar
+            respuesta = f"Respuesta simulada a: {pregunta}"
 
             return Response({"respuesta": respuesta})
         except Exception as e:
