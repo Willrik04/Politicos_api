@@ -1,12 +1,14 @@
 from django.urls import path
-from . import views
+from rest_framework.routers import DefaultRouter
+from .views import CandidatoViewSet, PartidoViewSet, ResultadoViewSet, ChatGPTView
+
+router = DefaultRouter()
+router.register(r'candidatos', CandidatoViewSet)
+router.register(r'partidos', PartidoViewSet)
+router.register(r'resultados', ResultadoViewSet)
 
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('candidatos/', views.CandidatoListView.as_view(), name='candidato-list'),
-    path('candidatos/<int:pk>/', views.CandidatoDetailView.as_view(), name='candidato-detail'),
-    path('partidos/', views.PartidoListView.as_view(), name='partido-list'),
-    path('partidos/<int:pk>/', views.PartidoDetailView.as_view(), name='partido-detail'),
-    path('resultados/', views.ResultadoElectoralListView.as_view(), name='resultado-list'),
-    path('chatgpt/', views.ChatGPTView.as_view(), name='chatgpt'),
+    path('chatgpt/', ChatGPTView.as_view(), name='chatgpt'),
 ]
+
+urlpatterns += router.urls
