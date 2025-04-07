@@ -11,7 +11,13 @@ SECRET_KEY = 'django-insecure-your-secret-key-here'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+# Configuración CSRF
+CSRF_TRUSTED_ORIGINS = [
+    'https://politicosapi-production.up.railway.app',
+]
+
+# Configuración de hosts permitidos
+ALLOWED_HOSTS = ['politicosapi-production.up.railway.app', 'localhost', '127.0.0.1']
 
 # Application definition
 INSTALLED_APPS = [
