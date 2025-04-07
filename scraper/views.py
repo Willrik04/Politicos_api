@@ -1,71 +1,51 @@
-from django.shortcuts import render
-from django.http import JsonResponse
-from rest_framework import generics, filters
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
+from rest_framework import viewsets
 from rest_framework.views import APIView
-from .models import Candidato, Partido, ResultadoElectoral
-from .serializers import CandidatoSerializer, PartidoSerializer, ResultadoElectoralSerializer, CandidatoDetailSerializer
-import openai
+from rest_framework.response import Response
+from .models import Candidato, Partido, Resultado
+from .serializers import CandidatoSerializer, PartidoSerializer, ResultadoSerializer
 import os
+import requests
 
-# Vista básica para pruebas
-def index(request):
-    return JsonResponse({"message": "API de candidatos políticos"})
-
-# Vistas para Candidatos
-class CandidatoListView(generics.ListAPIView):
+class CandidatoViewSet(viewsets.ModelViewSet):
     queryset = Candidato.objects.all()
     serializer_class = CandidatoSerializer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['nombre', 'cargo', 'partido__nombre']
 
-class CandidatoDetailView(generics.RetrieveAPIView):
-    queryset = Candidato.objects.all()
-    serializer_class = CandidatoDetailSerializer
-
-# Vistas para Partidos
-class PartidoListView(generics.ListAPIView):
+class PartidoViewSet(viewsets.ModelViewSet):
     queryset = Partido.objects.all()
     serializer_class = PartidoSerializer
 
-class PartidoDetailView(generics.RetrieveAPIView):
-    queryset = Partido.objects.all()
-    serializer_class = PartidoSerializer
+class ResultadoViewSet(viewsets.ModelViewSet):
+    queryset = Resultado.objects.all()
+    serializer_class = ResultadoSerializer
 
-# Vistas para Resultados Electorales
-class ResultadoElectoralListView(generics.ListAPIView):
-    queryset = ResultadoElectoral.objects.all()
-    serializer_class = ResultadoElectoralSerializer
-
-    def get_queryset(self):
-        queryset = ResultadoElectoral.objects.all()
-        candidato_id = self.request.query_params.get('candidato_id')
-        if candidato_id:
-            queryset = queryset.filter(candidato_id=candidato_id)
-        return queryset
-
-# Vista para ChatGPT
 class ChatGPTView(APIView):
     def post(self, request):
         try:
             # Obtener la pregunta del usuario
             pregunta = request.data.get('pregunta', '')
 
-            # Configurar la API de OpenAI
-            openai.api_key = os.environ.get('OPENAI_API_KEY', 'tu-api-key-aqui')
+            # Configurar la API de OpenAI (o la API que estés usando)
+            api_key = os.environ.get('OPENAI_API_KEY', '')
 
-            # Realizar la consulta a ChatGPT
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "Eres un asistente especializado en política ecuatoriana."},
-                    {"role": "user", "content": pregunta}
+            # Realizar la consulta a la API
+            headers = {
+                'Authorization': f'Bearer {api_key}',
+                'Content-Type': 'application/json'
+            }
+
+            data = {
+                'model': 'gpt-3.5-turbo',
+                'messages': [
+                    {'role': 'system', 'content': 'Eres un asistente especializado en política ecuatoriana.'},
+                    {'role': 'user', 'content': pregunta}
                 ]
-            )
+            }
+
+            response = requests.post('https://api.openai.com/v1/chat/completions', headers=headers, json=data)
+            response_data = response.json()
 
             # Extraer la respuesta
-            respuesta = response.choices[0].message.content
+            respuesta = response_data['choices'][0]['message']['content']
 
             return Response({"respuesta": respuesta})
         except Exception as e:

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.http import JsonResponse
 
 def home_view(request):
@@ -8,6 +8,5 @@ def home_view(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home_view, name='home'),
-    # Comentamos temporalmente la línea problemática
-    # path('api/', include('scraper.urls')),
+    path('api/', include('scraper.urls')),
 ]
