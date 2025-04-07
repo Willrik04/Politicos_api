@@ -1,14 +1,9 @@
 from django.urls import path
-from rest_framework.routers import DefaultRouter
-from .views import CandidatoViewSet, PartidoViewSet, ResultadoViewSet, ChatGPTView
+from django.http import JsonResponse
 
-router = DefaultRouter()
-router.register(r'candidatos', CandidatoViewSet)
-router.register(r'partidos', PartidoViewSet)
-router.register(r'resultados', ResultadoViewSet)
+def api_home(request):
+    return JsonResponse({"message": "API de scraper funcionando correctamente"})
 
 urlpatterns = [
-    path('chatgpt/', ChatGPTView.as_view(), name='chatgpt'),
+    path('', api_home, name='api_home'),
 ]
-
-urlpatterns += router.urls
